@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公寓管理员首页 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>公寓管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">公寓管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/manager"><span class="nav-icon">🏠</span>管理首页</a></li>
+                    <li><a href="/manager/repair/list"><span class="nav-icon">🔧</span>维修申报处理</a></li>
+                    <li><a href="/manager/visitor/list"><span class="nav-icon">📝</span>访客登记管理</a></li>
+                    <li><a href="/manager/notice/list"><span class="nav-icon">📢</span>公告管理</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>公寓管理员首页</h2>
+                <p class="welcome-text">欢迎进入学生公寓管理系统，请选择以下功能进行操作。</p>
+            </div>
+
+            <div class="cards-grid">
+                <a href="/manager/repair/list" class="feature-card">
+                    <div class="card-icon">🔧</div>
+                    <h3>维修申报处理</h3>
+                    <p>查看和处理学生提交的维修申请</p>
+                </a>
+                <a href="/manager/visitor/list" class="feature-card">
+                    <div class="card-icon">📝</div>
+                    <h3>访客登记管理</h3>
+                    <p>登记和管理公寓访客信息</p>
+                </a>
+                <a href="/manager/notice/list" class="feature-card">
+                    <div class="card-icon">📢</div>
+                    <h3>公告管理</h3>
+                    <p>发布与管理公寓通知公告</p>
+                </a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

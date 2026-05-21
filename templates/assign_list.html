@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>住宿分配管理 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>系统管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">系统管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/admin/students"><span class="nav-icon">👥</span>学生信息管理</a></li>
+                    <li><a href="/admin/managers"><span class="nav-icon">🏠</span>公寓管理员信息管理</a></li>
+                    <li><a href="/admin/apartments"><span class="nav-icon">🏠</span>公寓信息管理</a></li>
+                    <li><a href="/admin/rooms"><span class="nav-icon">🚪</span>房间信息</a></li>
+                    <li><a href="/admin/assign"><span class="nav-icon">📋</span>住宿分配管理</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>住宿分配管理</h2>
+                <p class="welcome-text">选择学生进行宿舍分配，系统将自动分配空闲床位。</p>
+            </div>
+
+            <!-- 搜索栏 -->
+            <div class="search-bar">
+                <form method="get" action="/admin/assign">
+                    <input type="text" name="keyword" placeholder="搜索学号、姓名、学院、专业、班级..." value="{{ keyword }}">
+                    <button type="submit" class="btn btn-primary">🔍 搜索</button>
+                    {% if keyword %}
+                    <a href="/admin/assign" class="btn btn-cancel">清除</a>
+                    {% endif %}
+                </form>
+            </div>
+
+            <!-- 学生列表 -->
+            {% if students %}
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>学号</th>
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>学院</th>
+                            <th>专业</th>
+                            <th>班级</th>
+                            <th>入住状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.student_no }}</td>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.gender }}</td>
+                            <td>{{ student.college }}</td>
+                            <td>{{ student.major }}</td>
+                            <td>{{ student['class'] }}</td>
+                            <td>
+                                {% if student.check_status == 'checked_in' %}
+                                    <span class="badge badge-success">已入住</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">未入住</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/admin/assign/{{ student.student_id }}" class="btn btn-sm btn-primary">分配宿舍</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>暂无学生信息</p>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>

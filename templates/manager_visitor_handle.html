@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>处理访客记录 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>公寓管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">公寓管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/manager"><span class="nav-icon">🏠</span>管理首页</a></li>
+                    <li><a href="/manager/repair/list"><span class="nav-icon">🔧</span>维修申报处理</a></li>
+                    <li><a href="/manager/visitor/list" class="active"><span class="nav-icon">📝</span>访客登记管理</a></li>
+                    <li><a href="/manager/notice/list"><span class="nav-icon">📢</span>公告管理</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>处理访客记录</h2>
+                <a href="/manager/visitor/list" class="btn-cancel" style="padding: 8px 20px; text-decoration: none;">← 返回列表</a>
+            </div>
+
+            <!-- 访客详情 -->
+            <div class="form-card" style="margin-bottom: 20px;">
+                <div class="form-card-header">
+                    <h3>📋 访客详情</h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="detail-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="detail-item">
+                            <label>访客姓名</label>
+                            <p>{{ visitor.visitor_name }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>访客电话</label>
+                            <p>{{ visitor.visitor_phone or '暂无' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>身份证号</label>
+                            <p>{{ visitor.id_card or '暂无' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>被访学生</label>
+                            <p>{{ visitor.student_name }} ({{ visitor.student_no }})</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>学生电话</label>
+                            <p>{{ visitor.student_phone or '暂无' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>公寓 / 房间</label>
+                            <p>{{ visitor.apartment_name }} - {{ visitor.room_no }} ({{ visitor.room_type }})</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>访问事由</label>
+                            <p>{{ visitor.visit_reason or '暂无' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>访问时间</label>
+                            <p>{{ visitor.visit_time.strftime('%Y-%m-%d %H:%M') if visitor.visit_time else '' }}</p>
+                        </div>
+                        <div class="detail-item">
+                            <label>登记状态</label>
+                            <p>
+                                {% if visitor.register_manager_id %}
+                                <span class="status-badge status-completed">已登记</span>
+                                {% else %}
+                                <span class="status-badge status-pending">未登记</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="detail-item">
+                            <label>离校状态</label>
+                            <p>
+                                {% if visitor.leave_time %}
+                                <span class="status-badge status-completed">已离校 ({{ visitor.leave_time.strftime('%Y-%m-%d %H:%M') }})</span>
+                                {% else %}
+                                <span class="status-badge status-processing">在校</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% if visitor.remark %}
+                    <div class="detail-item" style="margin-top: 16px;">
+                        <label>备注</label>
+                        <p style="white-space: pre-wrap; background: #f9f9f9; padding: 12px; border-radius: 6px;">{{ visitor.remark }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 处理表单 -->
+            {% if not visitor.register_manager_id %}
+            <div class="form-card" style="margin-bottom: 20px;">
+                <div class="form-card-header">
+                    <h3>📝 登记访客入校</h3>
+                </div>
+                <div class="form-card-body">
+                    <form method="post">
+                        <input type="hidden" name="action" value="register">
+                        <p style="margin-bottom: 16px; color: #666;">确认该访客已到达，点击下方按钮进行入校登记。</p>
+                        <div class="form-actions" style="display: flex; gap: 12px;">
+                            <button type="submit" class="btn-submit">确认登记入校</button>
+                            <a href="/manager/visitor/list" class="btn-cancel" style="text-decoration: none; padding: 12px 24px;">取消返回</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if visitor.register_manager_id and not visitor.leave_time %}
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h3>🚶 登记访客离校</h3>
+                </div>
+                <div class="form-card-body">
+                    <form method="post">
+                        <input type="hidden" name="action" value="leave">
+                        <p style="margin-bottom: 16px; color: #666;">确认该访客已离开，点击下方按钮进行离校登记。</p>
+                        <div class="form-actions" style="display: flex; gap: 12px;">
+                            <button type="submit" class="btn-submit" style="background-color: #f44336;">确认登记离校</button>
+                            <a href="/manager/visitor/list" class="btn-cancel" style="text-decoration: none; padding: 12px 24px;">取消返回</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if visitor.leave_time %}
+            <div class="form-card">
+                <div class="form-card-body">
+                    <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <p>该访客已完成入校登记并已离校</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</body>
+</html>

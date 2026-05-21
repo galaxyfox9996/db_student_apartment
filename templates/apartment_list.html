@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公寓信息管理 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>系统管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">系统管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/admin/students"><span class="nav-icon">👥</span>学生信息管理</a></li>
+                    <li><a href="/admin/managers"><span class="nav-icon">👨‍💼</span>公寓管理员信息管理</a></li>
+                    <li><a href="/admin/apartments" class="active"><span class="nav-icon">🏠</span>公寓信息管理</a></li>
+                    <li><a href="/admin/rooms"><span class="nav-icon">🚪</span>房间信息管理</a></li>
+                    <li><a href="/admin/assign"><span class="nav-icon">📋</span>住宿分配管理</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>公寓信息管理</h2>
+                <p class="welcome-text">查看和管理所有公寓基本信息，点击"查看房间"可进入房间管理。</p>
+            </div>
+
+            <!-- 工具栏 -->
+            <div class="toolbar">
+                <div class="breadcrumb-links">
+                    <a href="/admin">管理员首页</a>
+                </div>
+                <form method="get" action="/admin/apartments" class="search-form">
+                    <input type="text" name="keyword" class="search-input" placeholder="输入公寓名称、地址查询" value="{{ keyword }}">
+                    <button type="submit" class="btn btn-outline btn-sm">查询</button>
+                    <a href="/admin/apartments" class="btn btn-cancel btn-sm" style="background:#f1f5f9; border:none;">重置</a>
+                </form>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>编号</th>
+                            <th>公寓名称</th>
+                            <th>地址</th>
+                            <th>楼层数</th>
+                            <th>管理员编号</th>
+                            <th>描述</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for apartment in apartments %}
+                        <tr>
+                            <td>{{ apartment.apartment_id }}</td>
+                            <td><strong>{{ apartment.apartment_name }}</strong></td>
+                            <td>{{ apartment.address or '未填写' }}</td>
+                            <td>{{ apartment.floor_count }}</td>
+                            <td>{{ apartment.manager_id or '未分配' }}</td>
+                            <td>{{ apartment.description or '暂无描述' }}</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <a href="/admin/rooms?apartment_id={{ apartment.apartment_id }}" class="btn btn-outline btn-sm">查看房间</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% if apartments|length == 0 %}
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <p>暂无公寓数据</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>维修申报处理 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>公寓管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">公寓管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/manager"><span class="nav-icon">🏠</span>管理首页</a></li>
+                    <li><a href="/manager/repair/list" class="active"><span class="nav-icon">🔧</span>维修申报处理</a></li>
+                    <li><a href="/manager/visitor/list"><span class="nav-icon">📝</span>访客登记管理</a></li>
+                    <li><a href="/manager/notice/list"><span class="nav-icon">📢</span>公告管理</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>维修申报处理</h2>
+                <p class="welcome-text">查看和处理您所管公寓下学生提交的维修申报。</p>
+            </div>
+
+            <!-- 状态筛选 -->
+            <div class="form-card" style="margin-bottom: 20px;">
+                <div class="form-card-header">
+                    <h3>🔍 筛选条件</h3>
+                </div>
+                <div class="form-card-body">
+                    <form method="get" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="status">维修状态</label>
+                            <select id="status" name="status" style="width: 180px;">
+                                <option value="">全部状态</option>
+                                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>待处理</option>
+                                <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>处理中</option>
+                                <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>已完成</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <button type="submit" class="btn-submit" style="padding: 10px 24px;">筛选</button>
+                            <a href="/manager/repair/list" class="btn-cancel" style="padding: 10px 24px;">重置</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 维修列表 -->
+            {% if repairs %}
+            <div class="table-card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>学生姓名</th>
+                            <th>学号</th>
+                            <th>公寓/房间</th>
+                            <th>维修类型</th>
+                            <th>问题描述</th>
+                            <th>提交时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in repairs %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ r.student_name }}</td>
+                            <td>{{ r.student_no }}</td>
+                            <td>{{ r.apartment_name }} - {{ r.room_no }} ({{ r.room_type }})</td>
+                            <td>{{ r.repair_type }}</td>
+                            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ r.description or '' }}">
+                                {{ r.description or '暂无描述' }}
+                            </td>
+                            <td>{{ r.submit_time.strftime('%Y-%m-%d %H:%M:%S') if r.submit_time else '' }}</td>
+                            <td>
+                                {% if r.status == 'pending' %}
+                                <span class="status-badge status-pending">待处理</span>
+                                {% elif r.status == 'processing' %}
+                                <span class="status-badge status-processing">处理中</span>
+                                {% elif r.status == 'completed' %}
+                                <span class="status-badge status-completed">已完成</span>
+                                {% else %}
+                                <span class="status-badge">{{ r.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/manager/repair/handle/{{ r.repair_id }}" class="btn-action">处理</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="form-card">
+                <div class="form-card-body">
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <p>暂无维修申报记录</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</body>
+</html>

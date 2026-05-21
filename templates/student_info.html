@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的信息 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>学生首页</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">学生</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/student/info" class="active"><span class="nav-icon">🏠</span>我的信息</a></li>
+                    <li><a href="/student/repair"><span class="nav-icon">🔧</span>提交维修申报</a></li>
+                    <li><a href="/student/repair/list"><span class="nav-icon">⏳</span>查看维修进度</a></li>
+                    <li><a href="/student/visitor/apply"><span class="nav-icon">🔑</span>申请访客</a></li>
+                    <li><a href="/student/visitor/history"><span class="nav-icon">📋</span>我的访客记录</a></li>
+                    <li><a href="/student/notice"><span class="nav-icon">📢</span>查看公告</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>我的信息</h2>
+                <p class="welcome-text">查看您的个人信息与住宿信息。</p>
+            </div>
+
+            {% if student %}
+            <!-- 基本信息 -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h3>👤 基本信息</h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">学号</span>
+                            <span class="info-value">{{ student.student_no }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">姓名</span>
+                            <span class="info-value"><strong>{{ student.name }}</strong></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">性别</span>
+                            <span class="info-value">
+                                {% if student.gender == 'male' %}
+                                    <span class="badge badge-info">男</span>
+                                {% elif student.gender == 'female' %}
+                                    <span class="badge badge-info">女</span>
+                                {% else %}
+                                    {{ student.gender }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">学院</span>
+                            <span class="info-value">{{ student.college or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">专业</span>
+                            <span class="info-value">{{ student.major or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">班级</span>
+                            <span class="info-value">{{ student['class'] or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">电话</span>
+                            <span class="info-value">{{ student.phone or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">邮箱</span>
+                            <span class="info-value">{{ student.email or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">入住状态</span>
+                            <span class="info-value">
+                                {% if student.check_status == 'checked_in' %}
+                                    <span class="badge badge-success">已入住</span>
+                                {% elif student.check_status == 'not_checked_in' %}
+                                    <span class="badge badge-warning">未入住</span>
+                                {% elif student.check_status == 'checked_out' %}
+                                    <span class="badge badge-secondary">已退宿</span>
+                                {% else %}
+                                    {{ student.check_status }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 住宿信息 -->
+            <div class="form-card" style="margin-top: 20px;">
+                <div class="form-card-header">
+                    <h3>🛏️ 住宿信息</h3>
+                </div>
+                <div class="form-card-body">
+                    {% if student.accommodation_id %}
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">公寓名称</span>
+                            <span class="info-value">{{ student.apartment_name or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">房间号</span>
+                            <span class="info-value">{{ student.room_no or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">楼层</span>
+                            <span class="info-value">{{ student.floor or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">房间类型</span>
+                            <span class="info-value">{{ student.room_type or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">床位号</span>
+                            <span class="info-value">{{ student.bed_no or '暂无' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">入住日期</span>
+                            <span class="info-value">
+                                {% if student.check_in_date %}
+                                    {{ student.check_in_date.strftime('%Y-%m-%d') }}
+                                {% else %}
+                                    暂无
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">住宿状态</span>
+                            <span class="info-value">
+                                {% if student.accommodation_status == 'living' %}
+                                    <span class="badge badge-success">在住</span>
+                                {% elif student.accommodation_status == 'checked_out' %}
+                                    <span class="badge badge-secondary">已退宿</span>
+                                {% else %}
+                                    {{ student.accommodation_status or '暂无' }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">🏠</div>
+                        <p>暂无住宿信息，可能尚未分配宿舍或已退宿。</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% else %}
+            <div class="form-card">
+                <div class="form-card-body">
+                    <div class="empty-state">
+                        <div class="empty-icon">❌</div>
+                        <p>未找到学生信息</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</body>
+</html>

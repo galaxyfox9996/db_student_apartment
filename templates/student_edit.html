@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改学生 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>系统管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">系统管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/admin/students" class="active"><span class="nav-icon">👥</span>学生信息管理</a></li>
+                    <li><a href="/admin/managers"><span class="nav-icon">🏠</span>公寓管理员信息管理</a></li>
+                    <li><a href="/admin/apartments"><span class="nav-icon">🏠</span>公寓信息管理</a></li>
+                    <li><a href="/admin/rooms"><span class="nav-icon">🚪</span>房间信息管理</a></li>
+                    <li><a href="/admin/assign"><span class="nav-icon">📋</span>住宿分配管理</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>修改学生信息</h2>
+                <p class="welcome-text">编辑学生 {{ student.name }}（{{ student.student_no }}）的个人资料。</p>
+            </div>
+
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h3>📝 学生基本信息</h3>
+                </div>
+                <div class="form-card-body">
+                    <form method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="student_no">学号</label>
+                                <input type="text" id="student_no" name="student_no" value="{{ student.student_no }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="name">姓名</label>
+                                <input type="text" id="name" name="name" value="{{ student.name }}" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gender">性别</label>
+                                <select id="gender" name="gender" required>
+                                    <option value="male" {% if student.gender == 'male' %}selected{% endif %}>男</option>
+                                    <option value="female" {% if student.gender == 'female' %}selected{% endif %}>女</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="college">学院</label>
+                                <input type="text" id="college" name="college" value="{{ student.college }}">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="major">专业</label>
+                                <input type="text" id="major" name="major" value="{{ student.major }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="class_name">班级</label>
+                                <input type="text" id="class_name" name="class_name" value="{{ student['class'] }}">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">联系电话</label>
+                                <input type="text" id="phone" name="phone" value="{{ student.phone }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">邮箱</label>
+                                <input type="email" id="email" name="email" value="{{ student.email }}">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="check_status">入住状态</label>
+                                <select id="check_status" name="check_status">
+                                    <option value="not_checked_in" {% if student.check_status == 'not_checked_in' %}selected{% endif %}>未入住</option>
+                                    <option value="checked_in" {% if student.check_status == 'checked_in' %}selected{% endif %}>已入住</option>
+                                    <option value="checked_out" {% if student.check_status == 'checked_out' %}selected{% endif %}>已退宿</option>
+                                </select>
+                            </div>
+                            <!-- 占位用，保持对齐 -->
+                            <div class="form-group" style="visibility: hidden;">
+                                <label>&nbsp;</label>
+                                <input type="text" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-submit">保存修改</button>
+                            <a href="/admin/students" class="btn-cancel">返回</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

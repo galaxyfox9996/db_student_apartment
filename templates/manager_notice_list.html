@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告管理 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>公寓管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">公寓管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/manager"><span class="nav-icon">🏠</span>管理首页</a></li>
+                    <li><a href="/manager/repair/list"><span class="nav-icon">🔧</span>维修申报处理</a></li>
+                    <li><a href="/manager/visitor/list"><span class="nav-icon">📝</span>访客登记管理</a></li>
+                    <li><a href="/manager/notice/list" class="active"><span class="nav-icon">📢</span>公告管理</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>公告管理</h2>
+                <a href="/manager/notice/add" class="btn-submit" style="text-decoration: none; padding: 10px 24px;">＋ 发布新公告</a>
+            </div>
+
+            {% if notices %}
+            <div class="table-card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>标题</th>
+                            <th>图片</th>
+                            <th>附件</th>
+                            <th>视频</th>
+                            <th>发布时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for n in notices %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <strong>{{ n.title }}</strong>
+                                <div style="margin-top: 4px; font-size: 0.8rem; color: #999; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    {{ n.content }}
+                                </div>
+                            </td>
+                            <td>
+                                {% if n.image_path %}
+                                <span style="color: #4caf50;">📷 有</span>
+                                {% else %}
+                                <span style="color: #ccc;">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if n.file_path %}
+                                <span style="color: #2196f3;">📎 有</span>
+                                {% else %}
+                                <span style="color: #ccc;">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if n.video_path %}
+                                <span style="color: #ff9800;">🎬 有</span>
+                                {% else %}
+                                <span style="color: #ccc;">—</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ n.publish_time.strftime('%Y-%m-%d %H:%M:%S') if n.publish_time else '' }}</td>
+                            <td>
+                                <a href="/manager/notice/delete/{{ n.notice_id }}" class="btn-action" style="background-color: #f44336;" onclick="return confirm('确定要删除这条公告吗？');">删除</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="form-card">
+                <div class="form-card-body">
+                    <div class="empty-state">
+                        <div class="empty-icon">📢</div>
+                        <p>暂无公告</p>
+                        <a href="/manager/notice/add" class="btn-submit" style="display: inline-block; margin-top: 16px; text-decoration: none; padding: 10px 24px;">发布第一条公告</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</body>
+</html>

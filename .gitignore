@@ -1,0 +1,12 @@
+@"
+__pycache__/
+.venv/
+build/
+dist/
+release/
+*.db
+*.sqlite
+*.sqlite3
+*.pyc
+*.log
+"@ | Set-Content .gitignore -Encoding UTF8

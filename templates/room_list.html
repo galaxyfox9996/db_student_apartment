@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房间信息管理 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>系统管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">系统管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/admin/students"><span class="nav-icon">👥</span>学生信息管理</a></li>
+                    <li><a href="/admin/managers"><span class="nav-icon">👨‍💼</span>公寓管理员信息管理</a></li>
+                    <li><a href="/admin/apartments"><span class="nav-icon">🏠</span>公寓信息管理</a></li>
+                    <li><a href="/admin/rooms" class="active"><span class="nav-icon">🚪</span>房间信息管理</a></li>
+                    <li><a href="/admin/assign"><span class="nav-icon">📋</span>住宿分配管理</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                {% if apartment_id and apartment_name %}
+                <h2>{{ apartment_name }} - 房间信息</h2>
+                <p class="welcome-text">查看该公寓下所有房间的信息及居住学生。</p>
+                {% else %}
+                <h2>房间信息管理</h2>
+                <p class="welcome-text">查看所有房间的信息及居住学生，可根据房间号、公寓名称、学生姓名搜索。</p>
+                {% endif %}
+            </div>
+
+            <!-- 工具栏 -->
+            <div class="toolbar">
+                <div class="breadcrumb-links">
+                    <a href="/admin">管理员首页</a>
+                    {% if apartment_id %}
+                    <span class="separator">›</span>
+                    <a href="/admin/apartments">公寓信息管理</a>
+                    <span class="separator">›</span>
+                    <span>{{ apartment_name }}</span>
+                    {% endif %}
+                </div>
+                <form method="get" action="/admin/rooms" class="search-form">
+                    {% if apartment_id %}
+                    <input type="hidden" name="apartment_id" value="{{ apartment_id }}">
+                    {% endif %}
+                    <input type="text" name="keyword" class="search-input" placeholder="输入房间号、公寓名称、学生姓名查询" value="{{ keyword }}">
+                    <button type="submit" class="btn btn-outline btn-sm">查询</button>
+                    <a href="/admin/rooms{% if apartment_id %}?apartment_id={{ apartment_id }}{% endif %}" class="btn btn-cancel btn-sm" style="background:#f1f5f9; border:none;">重置</a>
+                </form>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>编号</th>
+                            <th>房间号</th>
+                            <th>所属公寓</th>
+                            <th>楼层</th>
+                            <th>类型</th>
+                            <th>容量</th>
+                            <th>当前人数</th>
+                            <th>剩余床位</th>
+                            <th>状态</th>
+                            <th>居住学生</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for room in rooms %}
+                        <tr>
+                            <td>{{ room.room_id }}</td>
+                            <td><strong>{{ room.room_no }}</strong></td>
+                            <td>{{ room.apartment_name or '未知' }}</td>
+                            <td>{{ room.floor }}楼</td>
+                            <td>
+                                {% if room.room_type == 'single' %}
+                                    单人间
+                                {% elif room.room_type == 'double' %}
+                                    双人间
+                                {% elif room.room_type == 'quad' %}
+                                    四人间
+                                {% elif room.room_type == 'six' %}
+                                    六人间
+                                {% else %}
+                                    {{ room.room_type }}
+                                {% endif %}
+                            </td>
+                            <td>{{ room.capacity }}人</td>
+                            <td>{{ room.current_count }}人</td>
+                            <td>
+                                {% if room.available_beds is not none %}
+                                    {{ room.available_beds }}床
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if room.status == 'normal' %}
+                                    <span class="badge badge-success">正常</span>
+                                {% elif room.status == 'repairing' %}
+                                    <span class="badge badge-warning">维修中</span>
+                                {% elif room.status == 'disabled' %}
+                                    <span class="badge badge-secondary">已停用</span>
+                                {% else %}
+                                    {{ room.status }}
+                                {% endif %}
+                            </td>
+                            <td>{{ room.student_name or '暂无' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% if rooms|length == 0 %}
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <p>暂无房间数据</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>

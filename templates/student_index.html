@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生首页 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>学生首页</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">学生</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/student/info"><span class="nav-icon">🏠</span>我的信息</a></li>
+                    <li><a href="/student/repair"><span class="nav-icon">🔧</span>提交维修申报</a></li>
+                    <li><a href="/student/repair/list"><span class="nav-icon">⏳</span>查看维修进度</a></li>
+                    <li><a href="/student/visitor/apply"><span class="nav-icon">🔑</span>申请访客</a></li>
+                    <li><a href="/student/visitor/history"><span class="nav-icon">📋</span>我的访客记录</a></li>
+                    <li><a href="/student/notice"><span class="nav-icon">📢</span>查看公告</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>学生首页</h2>
+                <p class="welcome-text">欢迎进入学生公寓管理系统，请选择以下功能进行操作。</p>
+            </div>
+
+            <div class="cards-grid">
+                <a href="/student/info" class="feature-card">
+                    <div class="card-icon">🏠</div>
+                    <h3>我的信息</h3>
+                    <p>查看个人信息与住宿信息</p>
+                </a>
+                <a href="/student/repair" class="feature-card">
+                    <div class="card-icon">🔧</div>
+                    <h3>提交维修申报</h3>
+                    <p>在线提交宿舍设施维修申请</p>
+                </a>
+                <a href="/student/repair/list" class="feature-card">
+                    <div class="card-icon">⏳</div>
+                    <h3>查看维修进度</h3>
+                    <p>实时追踪维修申请的处理状态</p>
+                </a>
+                <a href="/student/visitor/apply" class="feature-card">
+                    <div class="card-icon">🔑</div>
+                    <h3>申请访客</h3>
+                    <p>在线申请访客入校访问</p>
+                </a>
+                <a href="/student/visitor/history" class="feature-card">
+                    <div class="card-icon">📋</div>
+                    <h3>我的访客记录</h3>
+                    <p>查看已申请的访客入校记录</p>
+                <a href="/student/notice" class="feature-card">
+                    <div class="card-icon">📢</div>
+                    <h3>查看公告</h3>
+                    <p>浏览公寓发布的最新通知公告</p>
+                </a>
+            </div>
+
+            {% if latest_notices %}
+            <div class="form-card" style="margin-top: 28px;">
+                <div class="form-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>📢 最新公告</h3>
+                    <a href="/student/notice" style="font-size: 0.9rem; color: var(--primary, #1a73e8); text-decoration: none;">查看全部 →</a>
+                </div>
+                <div class="form-card-body" style="padding: 0;">
+                    <table class="data-table" style="margin-bottom: 0;">
+                        <thead>
+                            <tr>
+                                <th>标题</th>
+                                <th>发布者</th>
+                                <th>发布时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for notice in latest_notices %}
+                            <tr>
+                                <td><strong>{{ notice.title }}</strong></td>
+                                <td>{{ notice.publisher_name or '未知' }}</td>
+                                <td>{{ notice.publish_time.strftime('%Y-%m-%d %H:%M:%S') if notice.publish_time else '' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</body>
+</html>

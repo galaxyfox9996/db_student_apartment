@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提交维修申报 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>学生</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">学生</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/student/info"><span class="nav-icon">🏠</span>我的信息</a></li>
+                    <li><a href="/student/repair" class="active"><span class="nav-icon">🔧</span>提交维修申报</a></li>
+                    <li><a href="/student/repair/list"><span class="nav-icon">⏳</span>查看维修进度</a></li>
+                    <li><a href="/student/visitor/apply"><span class="nav-icon">🔑</span>申请访客</a></li>
+                    <li><a href="/student/visitor/history"><span class="nav-icon">📋</span>我的访客记录</a></li>
+                    <li><a href="/student/notice"><span class="nav-icon">📢</span>查看公告</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>提交维修申报</h2>
+                <p class="welcome-text">在线提交宿舍设施维修申请，请详细描述问题以便快速处理。</p>
+            </div>
+
+            {% if accommodation %}
+            <!-- 当前住宿信息 -->
+            <div class="form-card" style="margin-bottom: 24px;">
+                <div class="form-card-header">
+                    <h3>🏠 当前住宿信息</h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>公寓名称</label>
+                            <input type="text" value="{{ accommodation.apartment_name }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>房间号</label>
+                            <input type="text" value="{{ accommodation.room_no }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>床位号</label>
+                            <input type="text" value="{{ accommodation.bed_no }}" readonly>
+                        </div>
+                        <div class="form-group" style="visibility: hidden;">
+                            <label>&nbsp;</label>
+                            <input type="text" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 维修申报表单 -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h3>🔧 维修申报</h3>
+                </div>
+                <div class="form-card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="repair_type">维修类型 <span style="color: var(--danger);">*</span></label>
+                                <select id="repair_type" name="repair_type" required>
+                                    <option value="">-- 请选择维修类型 --</option>
+                                    <option value="水电维修">水电维修</option>
+                                    <option value="家具维修">家具维修</option>
+                                    <option value="门窗维修">门窗维修</option>
+                                    <option value="网络维修">网络维修</option>
+                                    <option value="墙面维修">墙面维修</option>
+                                    <option value="管道维修">管道维修</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <div style="visibility: hidden;">
+                                    <input type="text" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">问题描述</label>
+                            <textarea id="description" name="description" rows="4" placeholder="请详细描述您遇到的问题，例如：水龙头漏水、灯管不亮、门锁损坏等……" style="width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; color: var(--text); background: #f8fafc; font-family: inherit; resize: vertical; outline: none; transition: all var(--transition);"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image">上传图片（选填）</label>
+                            <input type="file" id="image" name="image" accept="image/*" style="padding: 9px; border: 1.5px dashed var(--border); border-radius: var(--radius-sm); background: #fafbfc; cursor: pointer; width: 100%; font-size: 0.9rem;">
+                            <p class="helper-text">支持 jpg、jpeg、png、gif、webp 格式，大小不超过 5MB。</p>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-submit">提交申报</button>
+                            <a href="/student" class="btn-cancel">返回首页</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- 未入住 -->
+            <div class="form-card">
+                <div class="form-card-body">
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <p>未入住，无法提交维修申报。请先联系管理员办理入住。</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</body>
+</html>

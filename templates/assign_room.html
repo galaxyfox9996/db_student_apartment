@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分配宿舍 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .tab-container { margin-bottom: 24px; }
+        .tab-nav { display: flex; border-bottom: 2px solid #e5e7eb; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 24px; border: none; background: none; cursor: pointer; font-size: 15px; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+        .tab-btn:hover { color: #374151; }
+        .tab-btn.active { color: #4f46e5; border-bottom-color: #4f46e5; font-weight: 600; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .bed-selector { margin-top: 16px; }
+        .bed-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .bed-item { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border: 2px solid #d1d5db; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; background: #f9fafb; }
+        .bed-item:hover { border-color: #4f46e5; background: #eef2ff; }
+        .bed-item.selected { border-color: #4f46e5; background: #4f46e5; color: white; }
+        .bed-item.occupied { border-color: #e5e7eb; background: #f3f4f6; color: #d1d5db; cursor: not-allowed; text-decoration: line-through; }
+
+        .room-selector { margin-top: 16px; }
+        .room-option { padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; background: #fafafa; display: flex; justify-content: space-between; align-items: center; }
+        .room-option:hover { border-color: #4f46e5; background: #f5f3ff; }
+        .room-option.selected { border-color: #4f46e5; background: #eef2ff; box-shadow: 0 0 0 1px #4f46e5; }
+
+        .manual-submit-area { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+        .selected-info { font-size: 14px; color: #374151; margin-top: 8px; padding: 8px 12px; background: #f0fdf4; border-radius: 6px; border-left: 3px solid #22c55e; }
+        .loading-hint { color: #9ca3af; font-size: 13px; margin-top: 6px; }
+
+        .section-title { font-size: 14px; color: #6b7280; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>系统管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">系统管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/admin/students"><span class="nav-icon">👥</span>学生信息管理</a></li>
+                    <li><a href="/admin/managers"><span class="nav-icon">🏠</span>公寓管理员信息管理</a></li>
+                    <li><a href="/admin/apartments"><span class="nav-icon">🏠</span>公寓信息管理</a></li>
+                    <li><a href="/admin/rooms"><span class="nav-icon">🚪</span>房间信息</a></li>
+                    <li><a href="/admin/assign"><span class="nav-icon">📋</span>住宿分配管理</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>分配宿舍</h2>
+                <p class="welcome-text">自动分配请选房间类型；手动选床请指定房间和空床位。</p>
+            </div>
+
+            <!-- 学生信息卡片 -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h3>学生信息</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>学号</label>
+                            <span>{{ student.student_no }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>姓名</label>
+                            <span>{{ student.name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>性别</label>
+                            <span>{{ student.gender }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>学院</label>
+                            <span>{{ student.college }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>专业</label>
+                            <span>{{ student.major }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>班级</label>
+                            <span>{{ student['class'] }}</span>
+                        </div>
+                        <div class="info-item">
+                            <label>入住状态</label>
+                            <span>
+                                {% if student.check_status == 'checked_in' %}
+                                    <span class="badge badge-success">已入住</span>
+                                {% elif student.check_status == 'not_checked_in' %}
+                                    <span class="badge badge-secondary">未入住</span>
+                                {% else %}
+                                    {{ student.check_status }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分配表单 -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h3>选择分配方式</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Tab 导航 -->
+                    <div class="tab-container">
+                        <div class="tab-nav">
+                            <button class="tab-btn active" onclick="switchTab('auto')">🤖 自动分配</button>
+                            <button class="tab-btn" onclick="switchTab('manual')">🎯 手动选床</button>
+                        </div>
+
+                        <!-- Tab 1：自动分配 -->
+                        <div class="tab-panel active" id="tab-auto">
+                            <form method="post" action="/admin/assign/{{ student.student_id }}">
+                                <input type="hidden" name="assign_mode" value="auto">
+                                <div class="form-group">
+                                    <label for="apartment_id_auto">选择公寓 <span class="required">*</span></label>
+                                    <select id="apartment_id_auto" name="apartment_id" class="form-select" required>
+                                        <option value="">-- 请选择公寓 --</option>
+                                        {% for apt in apartments %}
+                                        <option value="{{ apt.apartment_id }}">{{ apt.apartment_name }}（{{ apt.address }}）</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="room_type">房间类型 <span class="required">*</span></label>
+                                    <select id="room_type" name="room_type" class="form-select" required>
+                                        <option value="">-- 请选择房间类型 --</option>
+                                        <option value="single">单人间</option>
+                                        <option value="double">双人间</option>
+                                        <option value="quad">四人间</option>
+                                        <option value="six">六人间</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">确认自动分配</button>
+                                    <a href="/admin/assign" class="btn btn-cancel">返回列表</a>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Tab 2：手动选床 -->
+                        <div class="tab-panel" id="tab-manual">
+                            <div class="form-group">
+                                <label for="apartment_id_manual">选择公寓 <span class="required">*</span></label>
+                                <select id="apartment_id_manual" class="form-select" onchange="loadRooms()">
+                                    <option value="">-- 请选择公寓 --</option>
+                                    {% for apt in apartments %}
+                                    <option value="{{ apt.apartment_id }}">{{ apt.apartment_name }}（{{ apt.address }}）</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="room-selector" id="room-selector" style="display:none;">
+                                <div class="section-title">选择房间（点击选中）</div>
+                                <div id="room-list"></div>
+                            </div>
+
+                            <div class="bed-selector" id="bed-selector" style="display:none;">
+                                <div class="section-title">选择床位（点击选中）</div>
+                                <div class="bed-grid" id="bed-grid"></div>
+                                <input type="hidden" id="selected-bed" value="">
+                            </div>
+
+                            <div class="manual-submit-area" id="manual-submit-area" style="display:none;">
+                                <div id="selected-info-display" class="selected-info" style="display:none;"></div>
+                                <form method="post" action="/admin/assign/{{ student.student_id }}" style="margin-top:12px;">
+                                    <input type="hidden" name="assign_mode" value="manual">
+                                    <input type="hidden" name="apartment_id" id="form-apartment-id" value="">
+                                    <input type="hidden" name="room_id" id="form-room-id" value="">
+                                    <input type="hidden" name="bed_no" id="form-bed-no" value="">
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary" id="manual-submit-btn" disabled>确认手工分配</button>
+                                        <a href="/admin/assign" class="btn btn-cancel">返回列表</a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 当前有空位的房间 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>当前有空位的房间（参考）</h3>
+                </div>
+                <div class="card-body">
+                    {% if available_rooms %}
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>公寓</th>
+                                    <th>房间号</th>
+                                    <th>楼层</th>
+                                    <th>类型</th>
+                                    <th>容量</th>
+                                    <th>已入住</th>
+                                    <th>剩余床位</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rm in available_rooms %}
+                                <tr>
+                                    <td>{{ rm.apartment_name }}</td>
+                                    <td>{{ rm.room_no }}</td>
+                                    <td>{{ rm.floor }}楼</td>
+                                    <td>
+                                        {% if rm.room_type == 'single' %}单人间
+                                        {% elif rm.room_type == 'double' %}双人间
+                                        {% elif rm.room_type == 'quad' %}四人间
+                                        {% elif rm.room_type == 'six' %}六人间
+                                        {% else %}{{ rm.room_type }}{% endif %}
+                                    </td>
+                                    <td>{{ rm.capacity }}人</td>
+                                    <td>{{ rm.current_count }}人</td>
+                                    <td><strong>{{ rm.available_beds }}床</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>当前没有空闲房间</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let selectedRoomId = null;
+        let selectedBedNo = null;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        async function loadRooms() {
+            const apartmentId = document.getElementById('apartment_id_manual').value;
+            const roomSelector = document.getElementById('room-selector');
+            const bedSelector = document.getElementById('bed-selector');
+            const manualSubmitArea = document.getElementById('manual-submit-area');
+            const roomList = document.getElementById('room-list');
+
+            // 重置选择状态
+            selectedRoomId = null;
+            selectedBedNo = null;
+            roomSelector.style.display = 'none';
+            bedSelector.style.display = 'none';
+            manualSubmitArea.style.display = 'none';
+            roomList.innerHTML = '';
+            document.getElementById('selected-info-display').style.display = 'none';
+            updateSubmitButton();
+
+            if (!apartmentId) return;
+
+            try {
+                const resp = await fetch('/admin/api/available_rooms?apartment_id=' + encodeURIComponent(apartmentId));
+                const data = await resp.json();
+
+                if (!data.rooms || data.rooms.length === 0) {
+                    roomSelector.style.display = 'block';
+                    roomList.innerHTML = '<p style="color:#9ca3af;padding:12px;">该公寓暂无空闲房间</p>';
+                    return;
+                }
+
+                roomSelector.style.display = 'block';
+                roomList.innerHTML = data.rooms.map(r => {
+                    const typeNames = { single: '单人间', double: '双人间', quad: '四人间', six: '六人间' };
+                    return `
+                        <div class="room-option" data-room-id="${r.room_id}" onclick="selectRoom(this, ${r.room_id}, '${r.room_no}', ${r.capacity}, ${r.available_beds})">
+                            <div>
+                                <strong>${r.room_no}</strong>
+                                <span style="color:#6b7280;font-size:13px;margin-left:8px;">${r.floor}楼 · ${typeNames[r.room_type] || r.room_type}</span>
+                            </div>
+                            <div style="color:#6b7280;font-size:13px;">
+                                已住 ${r.current_count}/${r.capacity} · 剩余 <span style="color:#4f46e5;font-weight:600;">${r.available_beds}</span> 床
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('加载房间失败：', e);
+                roomList.innerHTML = '<p style="color:#ef4444;">加载失败，请重试</p>';
+            }
+        }
+
+        function selectRoom(el, roomId, roomNo, capacity, availableBeds) {
+            document.querySelectorAll('.room-option').forEach(r => r.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedRoomId = roomId;
+            selectedBedNo = null;
+            document.getElementById('form-apartment-id').value = document.getElementById('apartment_id_manual').value;
+            document.getElementById('form-room-id').value = roomId;
+            loadBeds(roomId, roomNo, capacity);
+        }
+
+        async function loadBeds(roomId, roomNo, capacity) {
+            const bedSelector = document.getElementById('bed-selector');
+            const bedGrid = document.getElementById('bed-grid');
+            const manualSubmitArea = document.getElementById('manual-submit-area');
+            const selectedInfo = document.getElementById('selected-info-display');
+
+            bedSelector.style.display = 'block';
+            manualSubmitArea.style.display = 'block';
+            selectedBedNo = null;
+            document.getElementById('selected-bed').value = '';
+            document.getElementById('form-bed-no').value = '';
+            selectedInfo.style.display = 'none';
+            updateSubmitButton();
+
+            try {
+                const resp = await fetch('/admin/api/room_beds/' + roomId);
+                const data = await resp.json();
+
+                if (data.error) {
+                    bedGrid.innerHTML = '<p style="color:#ef4444;">' + data.error + '</p>';
+                    return;
+                }
+
+                const availableSet = new Set(data.available_beds);
+                let html = '';
+                for (let i = 1; i <= data.capacity; i++) {
+                    if (availableSet.has(i)) {
+                        html += `<div class="bed-item" onclick="selectBed(this, ${i}, '${roomNo}')">${i}</div>`;
+                    } else {
+                        html += `<div class="bed-item occupied">${i}</div>`;
+                    }
+                }
+                bedGrid.innerHTML = html;
+            } catch (e) {
+                console.error('加载床位失败：', e);
+                bedGrid.innerHTML = '<p style="color:#ef4444;">加载失败，请重试</p>';
+            }
+        }
+
+        function selectBed(el, bedNo, roomNo) {
+            document.querySelectorAll('.bed-item:not(.occupied)').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedBedNo = bedNo;
+            document.getElementById('selected-bed').value = bedNo;
+            document.getElementById('form-bed-no').value = bedNo;
+
+            const selectedInfo = document.getElementById('selected-info-display');
+            selectedInfo.style.display = 'block';
+            selectedInfo.innerHTML = '✅ 已选择：<strong>' + roomNo + '</strong> 房间 · 床位号 <strong>' + bedNo + '</strong>';
+            updateSubmitButton();
+        }
+
+        function updateSubmitButton() {
+            const btn = document.getElementById('manual-submit-btn');
+            if (selectedRoomId && selectedBedNo) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            }
+        }
+    </script>
+</body>
+</html>

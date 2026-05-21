@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员首页 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>系统管理员</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">系统管理员</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/admin/students"><span class="nav-icon">👥</span>学生信息管理</a></li>
+                    <li><a href="/admin/managers"><span class="nav-icon">🏠</span>公寓管理员信息管理</a></li>
+                    <li><a href="/admin/apartments"><span class="nav-icon">🏠</span>公寓信息管理</a></li>
+                    <li><a href="/admin/rooms"><span class="nav-icon">🚪</span>房间信息</a></li>
+                    <li><a href="/admin/assign"><span class="nav-icon">📋</span>住宿分配管理</a></li>
+                    <li><a href="/admin/logs"><span class="nav-icon">📊</span>系统运行日志</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>系统管理员首页</h2>
+                <p class="welcome-text">欢迎进入学生公寓管理系统，请选择以下功能进行操作。</p>
+            </div>
+
+            <div class="cards-grid">
+                <a href="/admin/students" class="feature-card">
+                    <div class="card-icon">👥</div>
+                    <h3>学生信息管理</h3>
+                    <p>查看和管理所有学生基本信息</p>
+                </a>
+                <a href="/admin/managers" class="feature-card">
+                    <div class="card-icon">🏠</div>
+                    <h3>公寓管理员信息管理</h3>
+                    <p>管理公寓管理员的基本信息与权限</p>
+                </a>
+                <a href="/admin/apartments" class="feature-card">
+                    <div class="card-icon">🏠</div>
+                    <h3>公寓信息管理</h3>
+                    <p>查看和管理公寓基本信息</p>
+                </a>
+                <a href="/admin/rooms" class="feature-card">
+                    <div class="card-icon">🚪</div>
+                    <h3>房间信息</h3>
+                    <p>查看公寓房间资源</p>
+                </a>
+                <a href="/admin/assign" class="feature-card">
+                    <div class="card-icon">📋</div>
+                    <h3>住宿分配管理</h3>
+                    <p>为学生分配宿舍与调整住宿</p>
+                </a>
+                <a href="/admin/logs" class="feature-card">
+                    <div class="card-icon">📊</div>
+                    <h3>系统运行日志</h3>
+                    <p>查看系统用户操作记录与运行日志</p>
+                </a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

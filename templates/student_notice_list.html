@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看公告 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>学生</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">学生</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/student/info"><span class="nav-icon">🏠</span>我的信息</a></li>
+                    <li><a href="/student/repair"><span class="nav-icon">🔧</span>提交维修申报</a></li>
+                    <li><a href="/student/repair/list"><span class="nav-icon">⏳</span>查看维修进度</a></li>
+                    <li><a href="/student/visitor/apply"><span class="nav-icon">🔑</span>申请访客</a></li>
+                    <li><a href="/student/visitor/history"><span class="nav-icon">📋</span>我的访客记录</a></li>
+                    <li><a href="/student/notice" class="active"><span class="nav-icon">📢</span>查看公告</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>查看公告</h2>
+                <p class="welcome-text">浏览公寓发布的最新通知与公告。</p>
+            </div>
+
+            {% if notices %}
+            {% for n in notices %}
+            <div class="form-card" style="margin-bottom: 20px;">
+                <div class="form-card-header">
+                    <h3>{{ n.title }}</h3>
+                    <p style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-muted, #999);">
+                        发布人：{{ n.publisher_name or '未知' }} &nbsp;|&nbsp; 发布时间：{{ n.publish_time.strftime('%Y-%m-%d %H:%M:%S') if n.publish_time else '' }}
+                    </p>
+                </div>
+                <div class="form-card-body">
+                    <div style="white-space: pre-wrap; line-height: 1.8; font-size: 0.95rem; color: var(--text, #333);">
+                        {{ n.content }}
+                    </div>
+
+                    {% if n.image_path %}
+                    <div style="margin-top: 16px;">
+                        <img src="{{ url_for('static', filename=n.image_path) }}" alt="公告图片" style="max-width: 100%; border-radius: var(--radius-sm, 8px); border: 1px solid var(--border, #e0e0e0);">
+                    </div>
+                    {% endif %}
+
+                    {% if n.file_path %}
+                    <div style="margin-top: 12px;">
+                        <a href="{{ url_for('static', filename=n.file_path) }}" target="_blank" style="color: var(--primary, #2563eb); text-decoration: none; font-size: 0.9rem;">
+                            📎 查看附件
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="form-card">
+                <div class="form-card-body">
+                    <div class="empty-state">
+                        <div class="empty-icon">📢</div>
+                        <p>暂无公告</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</body>
+</html>

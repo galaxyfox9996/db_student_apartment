@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>申请访客入校 - 学生公寓管理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- 移动端顶部栏 -->
+    <div class="top-bar">
+        <h2>学生</h2>
+        <a href="/logout" class="mobile-logout">退出登录</a>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>🏢 公寓管理系统</h1>
+                <p class="brand-subtitle">学生</p>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">功能菜单</div>
+                <ul class="nav-menu">
+                    <li><a href="/student/info"><span class="nav-icon">🏠</span>我的信息</a></li>
+                    <li><a href="/student/repair"><span class="nav-icon">🔧</span>提交维修申报</a></li>
+                    <li><a href="/student/repair/list"><span class="nav-icon">⏳</span>查看维修进度</a></li>
+                    <li><a href="/student/visitor/apply" class="active"><span class="nav-icon">🔑</span>申请访客</a></li>
+                    <li><a href="/student/visitor/history"><span class="nav-icon">📋</span>我的访客记录</a></li>
+                    <li><a href="/student/notice"><span class="nav-icon">📢</span>查看公告</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="logout-btn">
+                    <span>🚪</span> 退出登录
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h2>申请访客入校</h2>
+                <p class="welcome-text">提交访客入校申请，请填写访客信息。</p>
+            </div>
+
+            {% if accommodation %}
+            <!-- 当前住宿信息 -->
+            <div class="form-card" style="margin-bottom: 24px;">
+                <div class="form-card-header">
+                    <h3>🏠 当前住宿信息</h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>公寓名称</label>
+                            <input type="text" value="{{ accommodation.apartment_name }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>房间号</label>
+                            <input type="text" value="{{ accommodation.room_no }}" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>床位号</label>
+                            <input type="text" value="{{ accommodation.bed_no }}" readonly>
+                        </div>
+                        <div class="form-group" style="visibility: hidden;">
+                            <label>&nbsp;</label>
+                            <input type="text" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 访客申请表单 -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h3>🔑 访客信息</h3>
+                </div>
+                <div class="form-card-body">
+                    <form method="post">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="visitor_name">访客姓名 <span style="color: var(--danger);">*</span></label>
+                                <input type="text" id="visitor_name" name="visitor_name" required placeholder="请输入访客姓名">
+                            </div>
+                            <div class="form-group">
+                                <label for="visitor_phone">联系电话</label>
+                                <input type="text" id="visitor_phone" name="visitor_phone" placeholder="请输入联系电话">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="id_card">身份证号</label>
+                                <input type="text" id="id_card" name="id_card" placeholder="请输入身份证号">
+                            </div>
+                            <div class="form-group">
+                                <label for="visit_time">来访时间 <span style="color: var(--danger);">*</span></label>
+                                <input type="datetime-local" id="visit_time" name="visit_time" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="visit_reason">访问事由</label>
+                            <textarea id="visit_reason" name="visit_reason" rows="3" placeholder="请简要描述访问事由……" style="width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; color: var(--text); background: #f8fafc; font-family: inherit; resize: vertical; outline: none; transition: all var(--transition);"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="remark">备注</label>
+                            <textarea id="remark" name="remark" rows="2" placeholder="其他需要说明的情况……" style="width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; color: var(--text); background: #f8fafc; font-family: inherit; resize: vertical; outline: none; transition: all var(--transition);"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-submit">提交申请</button>
+                            <a href="/student" class="btn-cancel">返回首页</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- 未入住 -->
+            <div class="form-card">
+                <div class="form-card-body">
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <p>未入住，无法申请访客入校。请先联系管理员办理入住。</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</body>
+</html>
